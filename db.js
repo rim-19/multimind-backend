@@ -1,26 +1,24 @@
-require('dotenv').config();
-const mysql = require('mysql2');
+// db.js
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
 
-const pool = mysql.createPool({
+dotenv.config();
+
+// Create MySQL connection
+const connection = await mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,
+  password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  ssl:  true 
+  port: process.env.DB_PORT || 3306,
+  ssl: { rejectUnauthorized: true } // Required for Railway & Azure secure connections
 });
 
-// Test connection (optional, for logs)
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error("❌ Database connection failed:", err.message);
-  } else {
-    console.log("✅ Connected to Railway MySQL");
-    connection.release();
-  }
-});
+try {
+  const [rows] = await connection.execute("SELECT 1 + 1 AS result");
+  console.log("✅ MySQL connected successfully! Test result:", rows[0].result);
+} catch (err) {
+  console.error("❌ Failed to connect to MySQL:", err);
+}
 
-module.exports = pool.promise();
+export default connection;

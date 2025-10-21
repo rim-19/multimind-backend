@@ -5,20 +5,18 @@ const cors = require("cors");
 const db = require("./db");
 const session = require("express-session"); // Added session middleware
 const app = express();
-const port = 3000;
+
 
 const path = require('path');
 
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
-app.use(cors());
-
-
 app.use(cors({
-  origin: "https://multimind-ai-six.vercel.app", // your frontend URL
+  origin: "https://multimind-ai-six.vercel.app",
   credentials: true
 }));
+
 
 
 // Session middleware
@@ -29,7 +27,8 @@ app.use(session({
   cookie: { secure: false }
 }));
 
-const apiKey = "AIzaSyC25ElRD-LjcBQdPTIMG21l7fQCpFcArC8";
+const apiKey = process.env.GEMINI_API_KEY;
+
 if (!apiKey) {
   console.error("GEMINI_API_KEY is not set in environment variables.");
   process.exit(1);
@@ -285,6 +284,6 @@ app.get("/api/chat/history/:userId/:domain", async (req, res) => {
 
 
 
-app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
-});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
